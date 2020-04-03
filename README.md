@@ -5,8 +5,8 @@
 2. Yaniar Pradityas Effendi (05111840000047)
 # 3. Soal Nomor 2
 Link ke file yang dibuat:
-* [tapclient.c](https://github.com/djtyranix/SoalShiftSISOP20_modul3_D04-1/blob/master/soal2/tapclient.c) - Tap Client Side
-* [tapserver.c](https://github.com/djtyranix/SoalShiftSISOP20_modul3_D04-1/blob/master/soal2/tapserver.c) - Tap Server Side
+* [tapclient.c](https://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal2/tapclient.c) - Tap Client Side
+* [tapserver.c](https://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal2/tapserver.c) - Tap Server Side
 
 # 4. Soal Nomor 4
 Link ke file yang dibuat:
