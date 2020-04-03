@@ -206,6 +206,64 @@ melakukan perkalian matriks. Ukuran matriks pertama adalah 4x2, dan
 matriks kedua 2x5. Isi dari matriks didefinisikan di dalam kodingan. Matriks
 nantinya akan berisi angka 1-20 (tidak perlu dibuat filter angka).
 2. Tampilkan matriks hasil perkalian tadi ke layar.
+## Jawaban
+```
+int a[B][BK] = {{2,4},{1,2},{3,5},{6,1}};
+int b[BK][K] = {{3,2,3,2,1},{1,1,2,1,3}};
+int c[B][K];`
+definisi matriks a, b, dan matriks c untuk hasil perkaliannya
+`void *kali(void *param) {
+   struct m *mtrx = param;
+   int k, sum = 0;
+
+   for(k = 0; k < BK; k++){
+      sum += a[mtrx->i][k] * b[k][mtrx->j];
+   }
+   c[mtrx->i][mtrx->j] = sum;
+
+   pthread_exit(0);
+}
+```
+fungsi untuk menghitung perkalian matriks ab dan b, kemudian menyimpan hasil untuk tiap elemen matriks c
+```
+key_t key = ftok("/home/yaniarpe/modul3",'a');
+```
+Bagian di atas untuk men-generate unique id
+```
+int shmid = shmget(key, sizeof(int)*B*K, IPC_CREAT|0666);
+int* value = (int *)shmat(shmid, (void*)0, 0);
+```
+untuk mendapatkan id segment shared memory dan attach ke shared memory
+```
+for(i = 0; i < B; i++) {
+      for(j = 0; j < K; j++) {
+
+         struct m *mtrx = (struct m *) malloc(sizeof(struct m));
+         mtrx->i = i;
+         mtrx->j = j;
+		 pthread_t tid; 
+         pthread_attr_t attr; 
+         pthread_attr_init(&attr);
+         pthread_create(&tid,&attr,kali,mtrx);
+         pthread_join(tid, NULL);
+      }
+   }
+```
+Bagian ini untuk menghitung perkalian matriks tiap elemen menggunakan thread
+```
+printf("Matriks hasil perkalian:\n");
+   for(i = 0; i < B; i++) {
+      for(j = 0; j < K; j++) {
+         printf("%d\t", c[i][j]);
+         value[i*K+j] = c[i][j];
+      }
+      printf("\n");
+   }
+   shmdt(value);
+
+```
+Setelah selesai menghitung maka matriks c hasil perkalian dimunculkan ke layar dan nilai matriks c tersebut disimpan di shared memory. Setelah selesai semua maka lepaskan shared memory, jangan di destroy.
+
 # 4.b.
 1. Buatlah program C kedua dengan nama "4b.c". Program ini akan
 mengambil variabel hasil perkalian matriks dari program "4a.c" (program
@@ -214,9 +272,123 @@ sebelumnya), dan tampilkan hasil matriks tersebut ke layar.
 2. Setelah ditampilkan, berikutnya untuk setiap angka dari matriks
 tersebut, carilah nilai penjumlahannya dari n sampai 1, dan tampilkan hasilnya ke layar dengan
 format seperti matriks.
+## Jawaban
+```
+int tambah(int x){
+  int i;
+  int result = 1;
+  if(x == 1){
+    return 1;
+  }
+  else{
+    for(i = 1; i <= x; i++){
+      result += i;
+    }
+    return result;
+  }
+}
+```
+Fungsi di atas untuk menghitung penjumlahan dari 1 sampai n.
+```
+void *calc(void *param) {
+  struct m *mtrx = param;
+   int result;
+   result = tambah(matrix[mtrx->i][mtrx->j]);
+   f[mtrx->i][mtrx->j] = result;
+   //Exit thread
+   pthread_exit(0);
+}
+```
+Fungsi di atas untuk memanggil fungsi tambah untuk menghitung penjumlahan dan menyimpan hasilnya ke dalam matriks f.
+```
+void main(){
+
+  key_t key = ftok("/home/yaniarpe/modul3",'a');
+  int i, j;
+
+  int shmid = shmget(key, sizeof(int)*B*K, IPC_CREAT|0666);
+  int* value = (int *)shmat(shmid, (void*)0, 0);
+  printf("Hasil perkalian matriks di 4a:\n");
+  for(i = 0; i < B; i++) {
+    for(j = 0; j < K; j++) {
+      printf("%d\t", value[i*K+j]);
+      matrix[i][j] = value[i*K+j];
+    }
+    printf("\n");
+  }
+  for(i = 0; i < B; i++) {
+     for(j = 0; j < K; j++) {
+        
+        struct m *mtrx = (struct m *) malloc(sizeof(struct m));
+        mtrx->i = i;
+        mtrx->j = j;
+        pthread_t tid;
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
+        pthread_create(&tid,&attr,calc,mtrx);
+        pthread_join(tid, NULL);
+     }
+  }
+  printf("Penjumlahan elemen matriks:\n");
+  for(i = 0; i < B; i++){
+    for(j = 0; j < K; j++){
+      printf("%d\t", f[i][j]);
+    }
+    printf("\n");
+  }
+  shmdt(value);
+  shmctl(shmid, IPC_RMID, NULL);
+}
+```
+Pada fungsi main mengambil data dari array yang berada di shared memory, kemudian melakukan operasi penjumlahan dari n sampai 1 untuk tiap elemen matriks menggunakan thread, lalu menampilkan hasilnya. Terakhir, detach dari shared memory dan destroy shared memory karena sudah tidak dipakai.
+
 # 4.c.
 1. Buatlah program C ketiga dengan nama "4c.c". Program ini tidak
 memiliki hubungan terhadap program yang lalu.
 2. Pada program ini, Norland diminta mengetahui jumlah file dan
 folder di direktori saat ini dengan command "ls | wc -l". Karena sudah belajar
 IPC, Norland mengerjakannya dengan semangat.
+## Jawaban
+```
+int fd[2];
+  pipe(fd);
+```
+Membuat sebuah pipe.
+```
+child_id = fork();
+  if (child_id < 0) {
+    exit(EXIT_FAILURE);
+  }
+  if (child_id == 0){
+    //this is child
+    close(fd[0]);
+    dup2(fd[1], 1); //stdout write pipe
+    close(fd[1]);
+    execlp("ls","ls", NULL);
+  }
+  ```
+  Merupakan child pertama. Untuk menjalanakn ls dengan execlp. Di child pertama stdout berperan untuk melakukan write pada pipe, sehingga fd[1] digunakan dan untuk fd[0](read) lebih baik ditutup karena tidak dipakai. Ujung pipe read seharusnya berada pada program yang menjalankan wc -l, terhubung pada stdin untuk membaca data pada pipe.
+  ```
+  child_id2 = fork();
+  if (child_id2 < 0) {
+    exit(EXIT_FAILURE);
+  }
+  if (child_id2 == 0){
+    //this is child
+    close(fd[1]);
+    dup2(fd[0], 0); //stdin read pipe
+    close(fd[0]);
+    execlp("wc","wc","-l", NULL);
+  }
+  ```
+  Di child kedua menjalankan wc -l dengan execlp. Seperti yang telah dijelaskan sebelumnya, stdin berfungsi sebagai read pada ujung pipe, sehingga fd[1] (write) tidak digunakan dan sebaiknya ditutup.
+  ```
+  //this is parent
+  close(fd[0]);
+  close(fd[1]);
+  int i;
+  for(i = 0; i < 2; i++){
+    wait(NULL);
+  }
+  ```
+  Pada parent cukup melakukan forking untuk membuat 2 child dan melakukan wait() untuk semua proses child yang ada hingga selesai.
