@@ -3,11 +3,16 @@
 ## Kelompok D04
 1. Michael Ricky (05111840000078)
 2. Yaniar Pradityas Effendi (05111840000047)
+# 3. Soal Nomor 2
+Link ke file yang dibuat:
+* [tapclient.c](https://github.com/djtyranix/SoalShiftSISOP20_modul3_D04-1/blob/master/soal2/tapclient.c) - Tap Client Side
+* [tapserver.c](https://github.com/djtyranix/SoalShiftSISOP20_modul3_D04-1/blob/master/soal2/tapserver.c) - Tap Server Side
+
 # 4. Soal Nomor 4
 Link ke file yang dibuat:
- - <a href="ttps://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal4/4a.c"><b>4a.c</b></a>
- - <a href="ttps://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal4/4b.c"><b>4b.c</b></a>
- - <a href="ttps://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal4/4c.c"><b>4c.c</b></a>
+* <a href="https://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal4/4a.c"><b>4a.c</b></a>
+* <a href="https://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal4/4b.c"><b>4b.c</b></a>
+* <a href="https://github.com/rddmoon/SoalShiftSISOP20_modul3_D04/blob/master/soal4/4c.c"><b>4c.c</b></a>
 # 4.a.
 1. Buatlah program C dengan nama "4a.c", yang berisi program untuk
 melakukan perkalian matriks. Ukuran matriks pertama adalah 4x2, dan
