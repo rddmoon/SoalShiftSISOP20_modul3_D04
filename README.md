@@ -95,6 +95,7 @@ gagal “Auth Failed”
 terdaftar (username dan password harus terlihat)
 
 ## Jawaban
+### Soal 2 belum selesai dikerjakan dikarenakan satu dan lain hal. Berikut adalah penjelasan state program sementara.
 Ada 2 file yang dibuat, yaitu file client side dan file server side.
 
 ## Client Side
@@ -103,16 +104,95 @@ Client side akan menampilkan welcome message, lalu akan meminta user untuk memil
 2. Register
 3. Exit
 
-Jika user mengetikkan login, maka tampilan login akan keluar. Jika user mengetikkan register, maka tampilan register akan keluar. Ketika user mengetikkan exit, client side dan server side akan melakukan ```exit(EXIT_SUCCESS);```
+Jika user mengetikkan login, maka tampilan login akan keluar.
+Jika user mengetikkan register, maka tampilan register akan keluar. Ketika user mengetikkan exit, client side dan server side akan melakukan ```exit(EXIT_SUCCESS);```
 
-Ketika memilih login ataupun register, client side akan membuat suatu pointer of file ke file "akun.txt". Format di dalam file tersebut adalah sebagai berikut :
+Ketika memilih login ataupun register, client side akan membuat suatu pointer of file ke file "akun.txt".
+Format di dalam file tersebut adalah sebagai berikut :
 ```
 username=some_username;password=some_password;
 ```
 
-Perbedaan terletak pada jenis ```fopen()``` yang dilakukan login dan register. Ketika login, ```fopen()``` akan menggunakan mode read. Ketika register, ```fopen()``` akan menggunakan mode append (Karena write akan me-rewrite file lama).
+Perbedaan terletak pada jenis ```fopen()``` yang dilakukan login dan register.
+Ketika login, ```fopen()``` akan menggunakan mode read. Ketika register, ```fopen()``` akan menggunakan mode append (Karena write akan me-rewrite file lama).
+Namun, perintah ini akan dilakukan BUKAN di client side melainkan di server side.
 
+Ketika client side sudah menerima perintah true dari server side (yang menandakan suatu proses berhasil, entah itu login ataupun register), client side akan melanjutkan programnya.
+Setelah selesai register, program akan kembali ke menu utama dan pengguna memilih menu login untuk kemudian login.
+Saat pengguna berhasil login, menu game akan ditampilkan.
+Di dalam menu game, akan ada 2 pilihan, yaitu find dan logout. 
+### Error 0 : Menu find belum siap digunakan, stuck di finding match.
+### Error 1 : Game belum dapat dimainkan.
 
+Menu logout akan menampilkan pesan terima kasih telah bermain dan akan kembali ke menu login.
+
+## Server Side
+Untuk server side, hal yang akan dilakukan untuk pertama kali adalah menunggu input dari user.
+Ketika user memilih login ataupun register, fungsi ```makeFile()``` akan berjalan.
+```
+int makeFile(char username[55], char password[55], int option) // Function to make a file. Option = Login/Register (1/2). Return 1 if true, 0 if false.
+{
+    int i;
+    FILE *fp; // File Pointer
+    char temp[512];
+    char str[200];
+
+    if(option == 1) // Login -> Read from file
+    {
+        fp = fopen("akun.txt", "r"); //r -> read
+
+        strcpy(str, "username=");
+        strcat(str, username);
+        strcat(str, ";password=");
+        strcat(str, password);
+        strcat(str, ";\n");
+
+        while(fgets(temp, 512, fp) != NULL) // Comparing the data with one in the textfile
+        {
+            if((strcmp(temp, str)) == 0) // If match found.
+            {
+                fclose(fp);
+                return 1; // True. Match found.
+            }
+        }
+        fclose(fp);
+
+        return 0; // If no match found.
+    }
+    else if(option == 2) // Register -> Write to file
+    {
+        fp = fopen("akun.txt", "a"); //w -> write
+
+        strcpy(str, "username=");
+        strcat(str, username);
+        strcat(str, ";password=");
+        strcat(str, password);
+        strcat(str, ";\n");
+
+        printf("%s\n", str);
+
+        for (i = 0; str[i] != '\n'; i++)
+        {
+          /* write to file using fputc() function */
+          fputc(str[i], fp);
+        }
+        fputs("\n",fp);
+        fclose(fp);
+
+        return 1;
+    }
+    
+    return 0; // ERROR
+}
+```
+
+Dalam fungsi inilah ```fopen()``` akan digunakan.
+
+Setelah itu, akan memunculkan message auth successful pada server.
+### Error 2 : Belum menampilkan seluruh akun yang ada dalam akun.txt.
+
+Setelah itu, server akan terus berkomunikasi dengan client side untuk menjalankan game.
+### Error 3 : Server belum sanggup untuk menerima multiple clients.
 
 
 # 4. Soal Nomor 4
