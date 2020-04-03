@@ -210,9 +210,11 @@ nantinya akan berisi angka 1-20 (tidak perlu dibuat filter angka).
 ```
 int a[B][BK] = {{2,4},{1,2},{3,5},{6,1}};
 int b[BK][K] = {{3,2,3,2,1},{1,1,2,1,3}};
-int c[B][K];`
+int c[B][K];
+```
 definisi matriks a, b, dan matriks c untuk hasil perkaliannya
-`void *kali(void *param) {
+```
+void *kali(void *param) {
    struct m *mtrx = param;
    int k, sum = 0;
 
