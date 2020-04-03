@@ -367,7 +367,7 @@ child_id = fork();
     execlp("ls","ls", NULL);
   }
   ```
-  Merupakan child pertama. Untuk menjalanakn ls dengan execlp. Di child pertama stdout berperan untuk melakukan write pada pipe, sehingga fd[1] digunakan dan untuk fd[0](read) lebih baik ditutup karena tidak dipakai. Ujung pipe read seharusnya berada pada program yang menjalankan wc -l, terhubung pada stdin untuk membaca data pada pipe.
+  Merupakan child pertama. Untuk menjalanakn ls dengan execlp. Di child pertama stdout berperan untuk melakukan write pada pipe, sehingga fd[1] digunakan dan untuk fd[0] (read) lebih baik ditutup karena tidak dipakai. Ujung pipe read seharusnya berada pada program yang menjalankan wc -l, terhubung pada stdin untuk membaca data pada pipe.
   ```
   child_id2 = fork();
   if (child_id2 < 0) {
