@@ -95,6 +95,24 @@ gagal “Auth Failed”
 terdaftar (username dan password harus terlihat)
 
 ## Jawaban
+Ada 2 file yang dibuat, yaitu file client side dan file server side.
+
+## Client Side
+Client side akan menampilkan welcome message, lalu akan meminta user untuk memilih pilihan.
+1. Login
+2. Register
+3. Exit
+
+Jika user mengetikkan login, maka tampilan login akan keluar. Jika user mengetikkan register, maka tampilan register akan keluar. Ketika user mengetikkan exit, client side dan server side akan melakukan ```exit(EXIT_SUCCESS);```
+
+Ketika memilih login ataupun register, client side akan membuat suatu pointer of file ke file "akun.txt". Format di dalam file tersebut adalah sebagai berikut :
+```
+username=some_username;password=some_password;
+```
+
+Perbedaan terletak pada jenis ```fopen()``` yang dilakukan login dan register. Ketika login, ```fopen()``` akan menggunakan mode read. Ketika register, ```fopen()``` akan menggunakan mode append (Karena write akan me-rewrite file lama).
+
+
 
 
 # 4. Soal Nomor 4
