@@ -334,7 +334,7 @@ if(argc == 2){
     exit(EXIT_FAILURE);
   }
 ```
-Pada bagian di bawah di fungsi main, untuk membuat pthread dan memanggil fungsi moving untuk memindah tiap file.
+Pada bagian di bawah di fungsi main, untuk membuat pthread dan memanggil fungsi moving untuk memindah tiap file dari input opsi -d dan ```*```.
 ```
 int count = 0;
   int cnt = 0;
