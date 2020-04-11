@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/time.h>
-#include <semaphore.h>
+//#include <semaphore.h>
 
 #define PORT 8080
 
@@ -23,11 +23,11 @@ char buffer[1024] = {0};
 char username[55], password[55], integer[1000], optionstr[3];
 char *truecon = "true", *falsecon = "false", *okay = "Command processed.";
 int isHit = 0, isFinding = 0;
-sem_t mutex;
+//sem_t mutex;
 
 void *theGame(void *arg)
 {
-    sem_wait(&mutex);
+    //sem_wait(&mutex);
 
     pthread_t id = pthread_self();
 
@@ -40,16 +40,17 @@ void *theGame(void *arg)
             valread = read( new_socket , buffer, 1024);
             if(strcmp(buffer, "logout") == 0) // logout
             {
-                printf("User logged out.\n");
+                printf("User %d logged out.\n", new_socket);
                 memset(buffer, 0, sizeof(buffer));
                 return 0;
             }
             else if(strcmp(buffer, "find") == 0) // found match
             {
-                printf("User is trying to find a match.\n");
+                printf("User %d is trying to find a match.\n", new_socket);
                 isFinding = 1;
-                sem_post(&mutex);
+                //sem_post(&mutex);
                 memset(buffer, 0, sizeof(buffer));
+                continue;
             }
 
             if(strcmp(buffer, "hit") == 0)
@@ -70,7 +71,7 @@ void *theGame(void *arg)
     }
     else if(pthread_equal(id, tid[1])) // To Client
     {
-        printf("Mutex\n");
+        //printf("Mutex\n");
         while(1)
         {
             if(isHit == 1)
@@ -82,10 +83,10 @@ void *theGame(void *arg)
             if(isFinding == 1)
             {
                 //sleep(5);
-                sem_wait(&mutex);
+                //sem_wait(&mutex);
                 send(new_socket, "matchfound", strlen("matchfound"), 0);
                 isFinding = 0;
-                sem_post(&mutex);
+                //sem_post(&mutex);
             }
         }
 
@@ -152,7 +153,7 @@ int makeFile(char username[55], char password[55], int option) // Function to ma
 
 int main(int argc, char const *argv[])
 {   
-    sem_init(&mutex, 0, 1);  
+    //sem_init(&mutex, 0, 1);  
     fd_set readfds;
 
     for (x = 0; x < max_clients; x++)   
@@ -299,7 +300,7 @@ int main(int argc, char const *argv[])
                             }
 
                             pthread_join(tid[0], NULL);
-                            pthread_join(tid[1], NULL);
+                            //pthread_join(tid[1], NULL);
                         }
                         else
                         {
@@ -362,6 +363,6 @@ int main(int argc, char const *argv[])
         }   
     }
 
-    sem_destroy(&mutex);
+    //sem_destroy(&mutex);
     return 0;
 }

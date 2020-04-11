@@ -154,9 +154,10 @@ void* theGame(void *arg)
             if(strcmp(cmd, "logout") == 0)
             {
                 printf("Thank you for playing!\n");
+                send(sock, "logout", strlen("logout"), 0); // sending logout message
                 sleep(2);
                  
-                return 0;
+                break;
             }
             else if(strcmp(cmd, "find") == 0)
             {
@@ -201,6 +202,8 @@ void* theGame(void *arg)
                 }
             }
         }
+
+        return 0;
     }
     else if(pthread_equal(id, tid[1]))
     {
@@ -216,7 +219,7 @@ void* theGame(void *arg)
         }
 
         return 0;
-    }   
+    }
 }
 
 int main(int argc, char const *argv[])
@@ -278,7 +281,7 @@ int main(int argc, char const *argv[])
                 }
                 
                 pthread_join(tid[0], NULL);
-                pthread_join(tid[1], NULL);
+                //pthread_join(tid[1], NULL);
 
                 printf("\e[1;1H\e[2J");
                 printf("Welcome to the TapTap game.\n");
@@ -292,8 +295,18 @@ int main(int argc, char const *argv[])
         }
         else if(option == 2)
         {
-            memset(buffer, 0, sizeof(buffer));
-            option = 1;
+            if(strcmp(buffer, "true") == 0)
+            {
+                printf("Registration successful! Please login now.\n\n");
+                memset(buffer, 0, sizeof(buffer));
+                option = 1;
+            }
+            else
+            {
+                printf("Registration error. Please try again.\n\n"); // registration error
+                memset(buffer, 0, sizeof(buffer));
+                option = 2;
+            }
         }
 
         printf("Select option:\n");
