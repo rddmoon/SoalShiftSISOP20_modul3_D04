@@ -194,6 +194,180 @@ Setelah itu, akan memunculkan message auth successful pada server.
 Setelah itu, server akan terus berkomunikasi dengan client side untuk menjalankan game.
 ### Error 3 : Server belum sanggup untuk menerima multiple clients.
 
+# 3. Soal Nomor 3
+## Soal
+Buatlah sebuah program dari C untuk mengkategorikan file. Program ini akan
+memindahkan file sesuai ekstensinya (tidak case sensitive. JPG dan jpg adalah
+sama) ke dalam folder sesuai ekstensinya yang folder hasilnya terdapat di working
+directory ketika program kategori tersebut dijalankan.
+● Pada opsi -f tersebut, user bisa menambahkan argumen file yang bisa
+dikategorikan sebanyak yang user inginkan seperti contoh di atas.
+● Pada program kategori tersebut, folder jpg,c,zip tidak dibuat secara manual,
+melainkan melalui program c. Semisal ada file yang tidak memiliki ekstensi,
+maka dia akan disimpan dalam folder “Unknown”.
+● Program kategori ini juga menerima perintah (*) seperti di bawah;
+● Artinya mengkategori seluruh file yang ada di working directory ketika
+menjalankan program C tersebut.
+● Selain hal itu program C ini juga menerima opsi -d untuk melakukan kategori
+pada suatu directory. Untuk opsi -d ini, user hanya bisa menginput 1 directory
+saja, tidak seperti file yang bebas menginput file sebanyak mungkin.
+● Hasilnya perintah di atas adalah mengkategorikan file di /path/to/directory dan
+hasilnya akan disimpan di working directory di mana program C tersebut
+berjalan (hasil kategori filenya bukan di /path/to/directory).
+● Program ini tidak rekursif. Semisal di directory yang mau dikategorikan, atau
+menggunakan (*) terdapat folder yang berisi file, maka file dalam folder
+tersebut tidak dihiraukan, cukup file pada 1 level saja.
+● Setiap 1 file yang dikategorikan dioperasikan oleh 1 thread agar bisa berjalan
+secara paralel sehingga proses kategori bisa berjalan lebih cepat. Dilarang
+juga menggunakan fork-exec dan system.
+● Silahkan download soal3.zip sebagai percobaan. Namun silahkan
+dicoba-coba sendiri untuk kemungkinan test case lainnya yang mungkin
+belum ada di soal3.zip.
+
+## Penjelasan
+Class Struct.
+```
+struct name{
+  char path[500];
+  char file[100];
+};
+```
+Fungsi untuk mengambil extention dari file.
+```
+char *getext(char *name) {
+  char *ext = strrchr(name, '.');
+  if(ext == NULL){
+    return "";
+  }
+  return ext + 1;
+}
+```
+Fungsi untuk mengambil nama file yang diinput pada opsi -f.
+```
+char *getname(char *path) {
+  char *name = strrchr(path, '/');
+  if(name == NULL){
+    return "";
+  }
+  return name++;
+}
+```
+Fungsi lowercase merupakan fungsi untuk mengubah extention menjadi file.
+```
+void lowercase(char *ext){
+  int i;
+  for (i = 0; i < strlen(ext); i++){
+      ext[i] = tolower(ext[i]);
+  }
+}
+```
+Fungsi moving fungsi untuk memindahkan file ke folder sesuai extention-nya
+```
+void* moving(void* param){
+  struct name *n = param;
+  char file1[700];
+  char file2[700];
+  char *ext = getext(n->file);
+  lowercase(ext);
+  if(ext == ""){
+    mkdir("Unknown", 0777);
+    sprintf(file2, "./Unknown/%s", n->file);
+  }
+  else{
+    mkdir(ext, 0777);
+    sprintf(file2, "./%s/%s", ext, n->file);
+  }
+  //sprintf(file1, "%s/%s", n->path, n->file);
+  strcpy(file1, n->path);
+  rename(file1, file2);
+  free(n);
+}
+```
+Fungsi untuk mengecek input. Apakah user memilih opsi -d, -f, atau ```*```, atau input salah.
+```
+if(argc == 2){
+    if(strcmp(argv[1], "*") == 0){
+      strcpy(drct, ".");
+      if((dir = opendir(drct)) == NULL){
+        printf("ERROR: gagal mengakses directory\n");
+        exit(EXIT_FAILURE);
+      }
+    }
+    else{
+      printf("ERROR: argumen yang diberikan tidak sesuai\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+  else if(argc > 2){
+    if(argc == 3 && strcmp(argv[1], "-d") == 0){
+      strcpy(drct, argv[2]);
+      if((dir = opendir(drct)) == NULL){
+        printf("ERROR: gagal mengakses directory\n");
+        exit(EXIT_FAILURE);
+      }
+    }
+    else if(strcmp(argv[1], "-f") == 0){
+      pthread_t threads[argc];
+      for(i = 2; i < argc; i++){
+        char *n = getname(argv[i]);
+        if(n == ""){
+          printf("ERROR: argumen yang diberikan tidak sesuai\n");
+          exit(EXIT_FAILURE);
+        }
+        struct name *f = (struct name *)malloc(sizeof(struct name));
+        strcpy(f->file, n);
+        strcpy(f->path, argv[i]);
+        pthread_create(&threads[i], NULL, moving, (void *)f);
+      }
+      for(i = 2; i < argc; i++){
+          pthread_join(threads[i], NULL);
+      }
+      exit(EXIT_SUCCESS);
+    }
+    else{
+      printf("ERROR: argumen yang diberikan tidak sesuai\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+  else{
+    printf("ERROR: argumen yang diberikan tidak sesuai\n");
+    exit(EXIT_FAILURE);
+  }
+```
+Pada bagian di bawah di fungsi main, untuk membuat pthread dan memanggil fungsi moving untuk memindah tiap file.
+```
+int count = 0;
+  int cnt = 0;
+  while((d = readdir(dir)) != NULL){
+    if(d->d_type == DT_REG){
+      count++;
+    }
+  }
+  rewinddir(dir);
+  pthread_t threads[count];
+  while((d = readdir(dir)) != NULL){
+    if(d->d_type != DT_REG){
+      continue;
+    }
+    if(strcmp(argv[0]+2, d->d_name) == 0){
+      threads[cnt] = 0;
+      cnt++;
+      continue;
+    }
+    struct name *f = (struct name *)malloc(sizeof(struct name));
+    strcpy(f->file, d->d_name);
+    sprintf(f->path, "%s/%s", drct, f->file);
+    //strcpy(f->path, drct);
+    pthread_create(&threads[cnt], NULL, moving, (void *)f);
+    cnt++;
+  }
+  for(i = 0; i < count; i++){
+    if(threads[i]){
+      pthread_join(threads[i], NULL);
+    }
+  }
+  exit(EXIT_SUCCESS);
+```
 
 # 4. Soal Nomor 4
 Link ke file yang dibuat:
